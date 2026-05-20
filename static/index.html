@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trend Scout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f14; --panel:#10151c; --panel2:#0f141a; --line:#1d2430; --line2:#273244;
+  --text:#ecf1f8; --muted:#9aa7b8; --faint:#627083; --accent:#60a5fa; --green:#34d399;
+  --yellow:#fbbf24; --purple:#a78bfa; --red:#f87171; --chip:#131c27; --hover:#141d29;
+  --radius:14px; --radius-sm:10px; --shadow:0 10px 40px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,#0a0e13 0%,#0b0f14 100%);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+button{border:0;background:none;color:inherit;cursor:pointer}
+.container{max-width:1380px;margin:0 auto;padding:24px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#60a5fa 0%,#a78bfa 100%);display:grid;place-items:center;box-shadow:var(--shadow);font-weight:800;color:#08111c}
+.brand h1{font-size:18px;font-weight:800;letter-spacing:-.03em}
+.brand p{font-size:12px;color:var(--muted);margin-top:2px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:10px 14px;min-width:320px}
+.search input{background:none;border:0;outline:0;color:var(--text);width:100%}
+.search input::placeholder{color:var(--faint)}
+.btn{padding:10px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-weight:600}
+.btn.active,.btn:hover{background:var(--hover);color:var(--text);border-color:var(--line2)}
+.grid{display:grid;grid-template-columns:260px 1fr;gap:18px}
+.sidebar{position:sticky;top:18px;height:fit-content;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px}
+.side-group{margin-bottom:18px}
+.side-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:10px}
+.stack{display:flex;flex-direction:column;gap:8px}
+.filter-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:transparent;border:1px solid transparent;color:var(--muted);font-weight:600}
+.filter-btn:hover{background:var(--hover);color:var(--text)}
+.filter-btn.active{background:#111b28;border-color:#1f3b63;color:#9bc6ff}
+.badge{font-size:11px;padding:3px 8px;border-radius:999px;background:#16202d;color:#8fb8ef}
+.maincol{display:flex;flex-direction:column;gap:18px}
+.hero{background:radial-gradient(circle at top left,rgba(96,165,250,.15),transparent 28%),var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.hero h2{font-size:28px;font-weight:800;letter-spacing:-.04em;line-height:1.04;margin-bottom:8px}
+.hero p{font-size:14px;color:var(--muted);max-width:72ch;line-height:1.6}
+.hero-right{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;min-width:360px}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px}
+.kpi .k{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px}
+.kpi .v{font-size:22px;font-weight:800;letter-spacing:-.04em}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.panel-title{font-size:13px;font-weight:700;color:var(--text)}
+.panel-sub{font-size:12px;color:var(--muted)}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:980px}
+thead th{position:sticky;top:0;background:var(--panel);z-index:2;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700}
+tbody td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:hover{background:rgba(255,255,255,.018)}
+.rank{font-size:12px;color:var(--faint);font-weight:700;width:52px}
+.repo-cell{display:flex;align-items:flex-start;gap:12px;min-width:280px}
+.avatar{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);object-fit:cover;flex-shrink:0}
+.repo-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.25}
+.repo-meta{font-size:12px;color:var(--muted);margin-bottom:3px}
+.repo-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px;max-width:48ch}
+.lang{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%}
+.num{font-feature-settings:'tnum';font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;font-weight:700}
+.num.green{color:var(--green)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid transparent}
+.pill.ai{background:rgba(167,139,250,.12);color:#c4b5fd;border-color:rgba(167,139,250,.25)}
+.pill.web{background:rgba(96,165,250,.12);color:#93c5fd;border-color:rgba(96,165,250,.25)}
+.pill.infra{background:rgba(52,211,153,.12);color:#86efac;border-color:rgba(52,211,153,.25)}
+.pill.security{background:rgba(248,113,113,.12);color:#fca5a5;border-color:rgba(248,113,113,.25)}
+.pill.data{background:rgba(251,191,36,.12);color:#fcd34d;border-color:rgba(251,191,36,.25)}
+.pill.devtools{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.22)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:5px 8px;border-radius:999px;background:var(--chip);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.empty{padding:34px 18px;text-align:center;color:var(--muted)}
+.footer-note{font-size:12px;color:var(--faint);padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.status{display:flex;gap:8px;align-items:center}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(52,211,153,.12)}
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.insight-summary{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.insight-summary strong{color:var(--text);font-weight:600}
+.insight-list{display:flex;flex-direction:column;gap:10px}
+.insight-card{padding:14px 16px;border-radius:14px;background:var(--panel2);border:1px solid var(--line)}
+.insight-card h4{font-size:14px;font-weight:700;margin-bottom:6px;letter-spacing:-.02em}
+.insight-card p{font-size:12px;color:var(--muted);line-height:1.55}
+.insight-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip-meta{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#131c27;border:1px solid var(--line);color:var(--faint)}
+.chip-meta.conf-high{color:#86efac;border-color:rgba(52,211,153,.3)}
+.chip-meta.conf-mid{color:#fcd34d;border-color:rgba(251,191,36,.3)}
+.signal-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.signal{font-size:11px;padding:4px 8px;border-radius:8px;background:#111827;color:#93c5fd;border:1px solid #1e3a5f}
+@media (max-width:900px){.insights-grid{grid-template-columns:1fr}}
+@media (max-width:1100px){.grid{grid-template-columns:1fr}.sidebar{position:static}.hero{flex-direction:column}.hero-right{min-width:0;width:100%}}
+@media (max-width:720px){.container{padding:14px}.topbar{flex-direction:column;align-items:stretch}.search{min-width:0}.hero h2{font-size:22px}.hero-right{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">TS</div>
+        <div>
+          <h1>Trend Scout</h1>
+          <p>GitHub Search API · trends &amp; project ideas</p>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="search">
+          <span style="color:var(--faint)">⌕</span>
+          <input id="search" placeholder="Search repo, description, owner, topic…" />
+        </div>
+        <button class="btn" onclick="exportCSV()">Export CSV</button>
+        <button class="btn" onclick="loadData()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <aside class="sidebar">
+        <div class="side-group">
+          <div class="side-label">Period</div>
+          <div class="stack">
+            <button class="filter-btn active" data-period="daily">Daily <span class="badge">24h</span></button>
+            <button class="filter-btn" data-period="weekly">Weekly <span class="badge">7d</span></button>
+            <button class="filter-btn" data-period="monthly">Monthly <span class="badge">30d</span></button>
+          </div>
+        </div>
+        <div class="side-group">
+          <div class="side-label">Language</div>
+          <div class="stack">
+            <button class="filter-btn active" data-lang="">All</button>
+            <button class="filter-btn" data-lang="Python">Python</button>
+            <button class="filter-btn" data-lang="TypeScript">TypeScript</button>
+            <button class="filter-btn" data-lang="JavaScript">JavaScript</button>
+            <button class="filter-btn" data-lang="Rust">Rust</button>
+            <button class="filter-btn" data-lang="Go">Go</button>
+            <button class="filter-btn" data-lang="C++">C++</button>
+          </div>
+        </div>
+        <div class="side-group">
+          <div class="side-label">Category</div>
+          <div class="stack">
+            <button class="filter-btn active" data-cat="All">All</button>
+            <button class="filter-btn" data-cat="AI/ML">AI/ML</button>
+            <button class="filter-btn" data-cat="Web">Web</button>
+            <button class="filter-btn" data-cat="Infra">Infra</button>
+            <button class="filter-btn" data-cat="Security">Security</button>
+            <button class="filter-btn" data-cat="Data">Data</button>
+            <button class="filter-btn" data-cat="Dev Tools">Dev Tools</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="maincol">
+        <section class="hero">
+          <div>
+            <h2>Live pulse of GitHub repos.</h2>
+            <p>
+              A dark Trendshift-style dashboard: fresh repos, auto-categories, trend forecasts, and project ideas
+              — powered by GitHub Search API (unofficial trending, sorted by stars).
+            </p>
+          </div>
+          <div class="hero-right">
+            <div class="kpi"><div class="k">Repos</div><div class="v" id="kpi-count">—</div><div class="s">active view</div></div>
+            <div class="kpi"><div class="k">Total stars</div><div class="v" id="kpi-stars">—</div><div class="s">in results</div></div>
+            <div class="kpi"><div class="k">Top language</div><div class="v" id="kpi-lang">—</div><div class="s" id="kpi-lang-sub">—</div></div>
+            <div class="kpi"><div class="k">Top category</div><div class="v" id="kpi-cat">—</div><div class="s" id="kpi-cat-sub">—</div></div>
+          </div>
+        </section>
+
+        <section class="panel" id="insights-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Forecasts & ideas</div>
+              <div class="panel-sub">Based on current results — trends and projects to explore</div>
+            </div>
+          </div>
+          <div style="padding:18px">
+            <p class="insight-summary" id="insight-summary">Analysis will appear after data loads…</p>
+            <div class="insights-grid">
+              <div>
+                <div class="side-label" style="margin-bottom:10px">Future trends</div>
+                <div class="insight-list" id="future-trends"></div>
+              </div>
+              <div>
+                <div class="side-label" style="margin-bottom:10px">Project ideas</div>
+                <div class="insight-list" id="project-ideas"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Trending repositories</div>
+              <div class="panel-sub" id="subline">Loading…</div>
+            </div>
+            <div class="status"><span class="live-dot"></span><span style="font-size:12px;color:var(--muted)">Live API</span></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Repository</th>
+                  <th>Language</th>
+                  <th>Category</th>
+                  <th>Stars</th>
+                  <th>Today</th>
+                  <th>Forks</th>
+                  <th>Topics</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr><td colspan="8" class="empty">Loading data from GitHub…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="footer-note">
+            <span>GitHub Search API has no official “stars today” field — values here are estimated. · <a href="https://ko-fi.com/elis60522" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">☕ Support on Ko-fi</a></span>
+            <span id="fetched-at">—</span>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+const state = { period:'daily', language:'', category:'All', search:'' };
+let RAW = [];
+let INSIGHTS = null;
+
+const fmt = n => n >= 1000 ? (n/1000).toFixed(1).replace('.0','') + 'k' : String(n || 0);
+const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const catClass = c => ({'AI/ML':'ai','Web':'web','Infra':'infra','Security':'security','Data':'data','Dev Tools':'devtools'})[c] || 'devtools';
+
+async function loadData(){
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = `<tr><td colspan="8" class="empty">Loading data from GitHub…</td></tr>`;
+  try {
+    const url = `/api/trending?since=${state.period}&language=${encodeURIComponent(state.language)}`;
+    const res = await fetch(url);
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = json.detail || json.message || `HTTP ${res.status}`;
+      throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+    }
+    RAW = json.repos || [];
+    INSIGHTS = json.insights || null;
+    document.getElementById('subline').textContent = `${json.count || 0} results · period: ${state.period}${state.language ? ' · language: ' + state.language : ''}`;
+    document.getElementById('fetched-at').textContent = `Fetched: ${new Date(json.fetchedAt).toLocaleString('en-US')}`;
+    renderInsights();
+    render();
+  } catch (e) {
+    const msg = e && e.message ? e.message : 'Unknown error';
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">GitHub API: ${esc(msg)}<br><span style="color:var(--faint);font-size:12px">Check <a href="/api/status" target="_blank" rel="noopener" style="color:var(--accent)">/api/status</a> · token in .env</span></td></tr>`;
+  }
+}
+
+function mdLite(s){
+  return esc(s || '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+
+function confClass(c){
+  const x = (c || '').toLowerCase();
+  if (x.includes('high')) return 'conf-high';
+  if (x.includes('medium') || x.includes('moderate')) return 'conf-mid';
+  return '';
+}
+
+function paintInsights(base, note){
+  const summaryEl = document.getElementById('insight-summary');
+  const trendsEl = document.getElementById('future-trends');
+  const ideasEl = document.getElementById('project-ideas');
+  if (!base) {
+    summaryEl.textContent = 'No analysis — refresh data.';
+    trendsEl.innerHTML = '';
+    ideasEl.innerHTML = '';
+    return;
+  }
+  summaryEl.innerHTML = mdLite(base.summary) + (note ? ` <span style="color:var(--faint)">${note}</span>` : '');
+  const trends = base.futureTrends || [];
+  const ideas = base.ideas || [];
+  trendsEl.innerHTML = trends.length ? trends.map(t => `
+    <article class="insight-card">
+      <h4>${esc(t.title)}</h4>
+      <p>${esc(t.reason)}</p>
+      <div class="insight-meta">
+        <span class="chip-meta ${confClass(t.confidence)}">${esc(t.confidence)}</span>
+        <span class="chip-meta">${esc(t.horizon)}</span>
+        <span class="chip-meta">${esc(t.category)}</span>
+      </div>
+    </article>`).join('') : '<p class="insight-summary">Not enough signal for a forecast.</p>';
+  ideasEl.innerHTML = ideas.length ? ideas.map(i => `
+    <article class="insight-card">
+      <h4>${esc(i.title)}</h4>
+      <p>${esc(i.why)}</p>
+      <div class="insight-meta"><span class="chip-meta">${esc(i.type)}</span></div>
+      ${(i.signals && i.signals.length) ? `<div class="signal-row">${i.signals.map(s => `<span class="signal">${esc(typeof s === 'string' ? s : s.name || '')}</span>`).join('')}</div>` : ''}
+    </article>`).join('') : '<p class="insight-summary">No ideas — try another period or language.</p>';
+}
+
+let insightsReq = 0;
+async function renderInsights(){
+  const data = filtered();
+  const filteredView = state.category !== 'All' || !!state.search;
+  if (!data.length) {
+    paintInsights({ summary: 'No results in the active filter.', futureTrends: [], ideas: [] }, '');
+    return;
+  }
+  if (!filteredView) {
+    paintInsights(INSIGHTS, '');
+    return;
+  }
+  const id = ++insightsReq;
+  try {
+    const res = await fetch('/api/insights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repos: data, since: state.period }),
+    });
+    const json = await res.json();
+    if (id !== insightsReq) return;
+    const note = `(analysis: ${data.length} repos · filter active)`;
+    paintInsights(json, note);
+  } catch {
+    if (id === insightsReq) paintInsights(INSIGHTS, '(full set — filter analysis failed)');
+  }
+}
+
+function filtered(){
+  return RAW.filter(r => {
+    const q = state.search.toLowerCase();
+    const txt = `${r.owner} ${r.name} ${r.desc} ${(r.topics||[]).join(' ')} ${r.category}`.toLowerCase();
+    const okSearch = !q || txt.includes(q);
+    const okCat = state.category === 'All' || r.category === state.category;
+    return okSearch && okCat;
+  });
+}
+
+function render(){
+  const data = filtered();
+  const tbody = document.getElementById('tbody');
+  if(!data.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">No results. Quiet like a repo without a README.</td></tr>`;
+    renderKPIs([]);
+    return;
+  }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td class="rank">#${r.rank}</td>
+      <td>
+        <a class="repo-cell" href="${r.ghUrl}" target="_blank" rel="noopener noreferrer">
+          <img class="avatar" src="${r.avatar}" alt="${esc(r.owner)} avatar" loading="lazy" />
+          <div>
+            <div class="repo-meta">${esc(r.owner)}/</div>
+            <div class="repo-name">${esc(r.name)}</div>
+            <div class="repo-desc">${esc(r.desc || 'No description')}</div>
+          </div>
+        </a>
+      </td>
+      <td><span class="lang"><span class="dot" style="background:${r.langColor || '#888'}"></span>${esc(r.lang)}</span></td>
+      <td><span class="pill ${catClass(r.category)}">${esc(r.category)}</span></td>
+      <td class="num">${fmt(r.stars)}</td>
+      <td class="num green">+${fmt(r.todayStars)}</td>
+      <td class="num">${fmt(r.forks)}</td>
+      <td><div class="tags">${(r.topics||[]).slice(0,4).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '<span class="tag">—</span>'}</div></td>
+    </tr>`).join('');
+  renderKPIs(data);
+  renderInsights();
+}
+
+function renderKPIs(data){
+  document.getElementById('kpi-count').textContent = data.length;
+  document.getElementById('kpi-stars').textContent = fmt(data.reduce((a,b)=>a+(b.stars||0),0));
+  const langs = {};
+  const cats = {};
+  data.forEach(r => { langs[r.lang]=(langs[r.lang]||0)+1; cats[r.category]=(cats[r.category]||0)+1; });
+  const topLang = Object.entries(langs).sort((a,b)=>b[1]-a[1])[0];
+  const topCat = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('kpi-lang').textContent = topLang ? topLang[0] : '—';
+  document.getElementById('kpi-lang-sub').textContent = topLang ? `${topLang[1]} repos` : '—';
+  document.getElementById('kpi-cat').textContent = topCat ? topCat[0] : '—';
+  document.getElementById('kpi-cat-sub').textContent = topCat ? `${topCat[1]} repos` : '—';
+}
+
+function exportCSV(){
+  const rows = filtered();
+  const header = ['rank','owner','name','desc','lang','category','stars','todayStars','forks','topics','ghUrl'];
+  const csv = [header.join(',')].concat(rows.map(r => [
+    r.rank, r.owner, r.name, (r.desc||'').replaceAll('"',"'"), r.lang, r.category, r.stars, r.todayStars, r.forks, (r.topics||[]).join('|'), r.ghUrl
+  ].map(v => `"${String(v ?? '').replaceAll('"','""')}"`).join(','))).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `trend-scout-${state.period || 'daily'}.csv`;
+  a.click();
+}
+
+document.getElementById('search').addEventListener('input', e => { state.search = e.target.value.trim(); render(); renderInsights(); });
+document.querySelectorAll('[data-period]').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.period = btn.dataset.period;
+  loadData();
+}));
+document.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('[data-lang]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.language = btn.dataset.lang;
+  loadData();
+}));
+document.querySelectorAll('[data-cat]').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.category = btn.dataset.cat;
+  render();
+  renderInsights();
+}));
+
+loadData();
+</script>
+</body>
+</html>
